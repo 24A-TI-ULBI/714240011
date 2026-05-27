@@ -1,29 +1,20 @@
 package url
 
 import (
-	"gocroot/controller"
+	"backend/controller"
 
 	"github.com/gofiber/fiber/v2"
 )
 
-func Web(page *fiber.App) {
-	page.Get("/", controller.Homepage)
-	page.Get("/ip", controller.GetIPServer)
-	page.Get("/whatsauth/refreshtoken", controller.RefreshWAToken)
+// Web mendaftarkan semua route ke aplikasi Fiber.
+// Setiap modul punya file route sendiri di folder url/.
+// Untuk menambah modul baru, buat file [modul]Route.go lalu panggil fungsinya di sini.
+func Web(app *fiber.App) {
+	// Global
+	app.Get("/", controller.Homepage)
+	app.Get("/ip", controller.IPServer)
 
-	page.Post("/whatsauth/webhook", controller.WhatsAuthReceiver)
-
-	page.Get("/auth/phonenumber/:login", controller.GetPhoneNumber)
-
-	// Route Modul 4 — Jadwal & Ruangan
-	page.Get("/jadwal", controller.GetAllJadwal)
-	page.Get("/jadwal/:id", controller.GetJadwalByID)
-	page.Post("/jadwal", controller.CreateJadwal)
-	page.Put("/jadwal/:id", controller.UpdateJadwal)
-	page.Delete("/jadwal/:id", controller.DeleteJadwal)
-
-	page.Get("/ruangan", controller.GetAllRuangan)
-	page.Post("/ruangan", controller.CreateRuangan)
-	page.Get("/ruangan/:kode", controller.GetRuanganByKode)
-	page.Put("/ruangan/:kode", controller.UpdateRuanganByKode)
+	// Tambahkan route modul di bawah ini setelah PR di-merge
+	// Contoh: MahasiswaRoute(app)
+	JadwalRoute(app)
 }

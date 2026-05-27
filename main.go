@@ -3,18 +3,29 @@ package main
 import (
 	"log"
 
-	"gocroot/config"
-
-	"github.com/gofiber/fiber/v2/middleware/cors"
-
-	"gocroot/url"
+	"backend/config"
+	"backend/url"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 )
 
 func main() {
-	site := fiber.New(config.Iteung)
-	site.Use(cors.New(config.Cors))
-	url.Web(site)
-	log.Fatal(site.Listen(config.IPPort))
+	// Load .env
+	config.InitConfig()
+
+	// Init Fiber dengan config mengikuti pola boilerplate gocroot
+	app := fiber.New(config.FiberConfig)
+
+	// CORS
+	app.Use(cors.New(config.CorsConfig()))
+
+	// Static files frontend
+	app.Static("/", "./frontend")
+
+	// Routes
+	url.Web(app)
+
+	log.Printf("Server running on %s", config.IPPort)
+	log.Fatal(app.Listen(config.IPPort))
 }

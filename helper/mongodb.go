@@ -2,17 +2,21 @@ package helper
 
 import (
 	"context"
-	"gocroot/model"
 	"net"
+	"os"
 	"strconv"
 	"strings"
 	"time"
+
+	"backend/model"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+// MongoConnect connects to MongoDB and returns a *mongo.Database.
+// Mengikuti pola boilerplate gocroot — ada fallback SRV lookup kalau koneksi Atlas gagal.
 func MongoConnect(mconn model.DBInfo) (db *mongo.Database, err error) {
 	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(mconn.DBString))
 	if err != nil {
@@ -26,6 +30,7 @@ func MongoConnect(mconn model.DBInfo) (db *mongo.Database, err error) {
 	return
 }
 
+// SRVLookup converts mongodb+srv:// URI to standard mongodb:// URI via DNS SRV lookup.
 func SRVLookup(srvuri string) (mongouri string) {
 	atsplits := strings.Split(srvuri, "@")
 	userpass := strings.Split(atsplits[0], "//")[1]
@@ -33,7 +38,7 @@ func SRVLookup(srvuri string) (mongouri string) {
 	slashsplits := strings.Split(atsplits[1], "/")
 	domain := slashsplits[0]
 	dbname := slashsplits[1]
-	//"mongodb://john:PASSWORD@gdelt-shard-00-00.n1mbb.mongodb.net:27017,gdelt-shard-00-01.n1mbb.mongodb.net:27017,gdelt-shard-00-02.n1mbb.mongodb.net:27017/DATABASE?ssl=true&authSource=admin&replicaSet=atlas-7o9d3y-shard-0"
+
 	r := &net.Resolver{
 		PreferGo: true,
 		Dial: func(ctx context.Context, network, address string) (net.Conn, error) {
@@ -45,13 +50,12 @@ func SRVLookup(srvuri string) (mongouri string) {
 	}
 	_, srvs, err := r.LookupSRV(context.Background(), "mongodb", "tcp", domain)
 	if err != nil {
-		panic(err)
+		return
 	}
 	var srvlist string
 	for _, srv := range srvs {
 		srvlist += strings.TrimSuffix(srv.Target, ".") + ":" + strconv.FormatUint(uint64(srv.Port), 10) + ","
 	}
-
 	txtrecords, _ := r.LookupTXT(context.Background(), domain)
 	var txtlist string
 	for _, txt := range txtrecords {
@@ -61,44 +65,69 @@ func SRVLookup(srvuri string) (mongouri string) {
 	return
 }
 
-func GetRandomDoc[T any](db *mongo.Database, collection string, size uint) (result []T, err error) {
-	filter := mongo.Pipeline{
-		{{Key: "$sample", Value: bson.D{{Key: "size", Value: size}}}},
-	}
-	ctx := context.Background()
-	cursor, err := db.Collection(collection).Aggregate(ctx, filter)
-	if err != nil {
-		return
-	}
-
-	err = cursor.All(ctx, &result)
-
-	return
+// GetCollection returns a MongoDB collection dari database utama.
+// Semua modul wajib pakai fungsi ini.
+func GetCollection(collectionName string) *mongo.Collection {
+	return GetDB().Collection(collectionName)
 }
 
+// GetDB returns the main *mongo.Database instance dari config.
+func GetDB() *mongo.Database {
+	dbName := os.Getenv("MONGODB_NAME")
+	if dbName == "" {
+		dbName = "kampus"
+	}
+	mconn := model.DBInfo{
+		DBString: os.Getenv("MONGOSTRING"),
+		DBName:   dbName,
+	}
+	db, err := MongoConnect(mconn)
+	if err != nil {
+		panic("Gagal koneksi MongoDB: " + err.Error())
+	}
+	return db
+}
+
+// GetContext returns a context with timeout for MongoDB operations
+func GetContext() (context.Context, context.CancelFunc) {
+	return context.WithTimeout(context.Background(), 10*time.Second)
+}
+
+// GetOneDoc fetches a single document from a collection
 func GetOneDoc[T any](db *mongo.Database, collection string, filter bson.M) (doc T, err error) {
 	err = db.Collection(collection).FindOne(context.TODO(), filter).Decode(&doc)
-	if err != nil {
-		return
-	}
 	return
 }
 
-// With replaceOne() you can only replace the entire document,
-// while updateOne() allows for updating fields. Since replaceOne() replaces the entire document - fields in the old document not contained in the new will be lost.
-// With updateOne() new fields can be added without losing the fields in the old document.
+// GetAllDoc fetches all documents from a collection
+func GetAllDoc[T any](db *mongo.Database, collection string, filter bson.M) (docs []T, err error) {
+	ctx := context.Background()
+	cursor, err := db.Collection(collection).Find(ctx, filter)
+	if err != nil {
+		return
+	}
+	err = cursor.All(ctx, &docs)
+	return
+}
+
+// InsertOneDoc inserts a single document into a collection
+func InsertOneDoc(db *mongo.Database, collection string, doc interface{}) (insertedID interface{}, err error) {
+	result, err := db.Collection(collection).InsertOne(context.TODO(), doc)
+	if err != nil {
+		return
+	}
+	insertedID = result.InsertedID
+	return
+}
+
+// UpdateDoc updates a single document in a collection
 func UpdateDoc(db *mongo.Database, collection string, filter bson.M, updatefield bson.M) (updateresult *mongo.UpdateResult, err error) {
 	updateresult, err = db.Collection(collection).UpdateOne(context.TODO(), filter, updatefield)
-	if err != nil {
-		return
-	}
 	return
 }
 
-func ReplaceOneDoc(db *mongo.Database, collection string, filter bson.M, doc interface{}) (updatereseult *mongo.UpdateResult, err error) {
-	updatereseult, err = db.Collection(collection).ReplaceOne(context.TODO(), filter, doc)
-	if err != nil {
-		return
-	}
+// DeleteDoc deletes a single document from a collection
+func DeleteDoc(db *mongo.Database, collection string, filter bson.M) (deleteresult *mongo.DeleteResult, err error) {
+	deleteresult, err = db.Collection(collection).DeleteOne(context.TODO(), filter)
 	return
 }

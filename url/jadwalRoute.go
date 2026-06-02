@@ -19,4 +19,5 @@ func JadwalRoute(app *fiber.App) {
 	ruangan.Post("", controller.CreateRuangan)
 	ruangan.Get("/:kode", controller.GetRuanganByKode)
 	ruangan.Put("/:kode", controller.UpdateRuangan)
+	ruangan.Delete("/:kode", controller.DeleteRuangan)
 }

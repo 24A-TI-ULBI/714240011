@@ -1,255 +1,1128 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Jadwal Kuliah — SIAKAD</title>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; color: #333; min-height: 100vh; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Informasi Jadwal & Ruangan — SIAKAD</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --surface-color: rgba(17, 24, 39, 0.7);
+            --surface-border: rgba(255, 255, 255, 0.08);
+            --primary: #6366f1;
+            --primary-glow: rgba(99, 102, 241, 0.15);
+            --secondary: #10b981;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --accent: #f59e0b;
+            --accent-glow: rgba(245, 158, 11, 0.15);
+            --danger: #ef4444;
+            --card-gradient: linear-gradient(135deg, rgba(31, 41, 55, 0.4) 0%, rgba(17, 24, 39, 0.6) 100%);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
 
-    header {
-      background: #1a73e8;
-      color: white;
-      padding: 1rem 2rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    header h1 { font-size: 1.2rem; font-weight: 600; }
-    .back-btn { color: white; text-decoration: none; font-size: 0.9rem; border: 1px solid white; padding: 0.3rem 0.8rem; border-radius: 4px; }
-    .back-btn:hover { background: rgba(255,255,255,0.1); }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
 
-    .container { max-width: 1000px; margin: 2rem auto; padding: 0 1.5rem; }
-    
-    .filters {
-      background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-      margin-bottom: 2rem; display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap;
-    }
-    .form-group { display: flex; flex-direction: column; gap: 0.5rem; flex: 1; min-width: 200px; }
-    .form-group label { font-size: 0.85rem; font-weight: 600; color: #555; }
-    .form-group input { padding: 0.6rem; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9rem; }
-    .btn { padding: 0.6rem 1.2rem; border: none; border-radius: 4px; font-size: 0.9rem; cursor: pointer; font-weight: 600; }
-    .btn-primary { background: #1a73e8; color: white; }
-    .btn-primary:hover { background: #1557b0; }
+        body {
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.1) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.05) 0px, transparent 50%);
+            color: var(--text-main);
+            min-height: 100.1vh;
+            padding-bottom: 50px;
+            overflow-x: hidden;
+        }
 
-    .schedule-grid {
-      display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;
-    }
-    
-    .day-card { background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
-    .day-header { background: #e8f0fe; color: #1a73e8; padding: 1rem; font-weight: 600; font-size: 1.1rem; border-bottom: 1px solid #d2e3fc; }
-    
-    .class-item { padding: 1rem; border-bottom: 1px solid #eee; }
-    .class-item:last-child { border-bottom: none; }
-    .time { font-size: 0.85rem; color: #1a73e8; font-weight: 600; margin-bottom: 0.3rem; }
-    .subject { font-size: 1.05rem; font-weight: 600; margin-bottom: 0.2rem; }
-    .lecturer { font-size: 0.85rem; color: #555; margin-bottom: 0.4rem; }
-    .room { display: inline-block; font-size: 0.75rem; background: #f1f3f4; padding: 0.2rem 0.5rem; border-radius: 4px; color: #555; }
-    .prodi { display: inline-block; font-size: 0.75rem; background: #e6f4ea; color: #1e7e34; padding: 0.2rem 0.5rem; border-radius: 4px; margin-left: 0.5rem;}
-    
-    .empty-state { text-align: center; padding: 3rem; color: #888; font-size: 0.95rem; }
-  </style>
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--surface-color);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--surface-border);
+            padding: 20px 40px;
+            border-radius: 24px;
+            margin-bottom: 40px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-icon {
+            background: linear-gradient(135deg, var(--primary), #4f46e5);
+            width: 48px;
+            height: 48px;
+            border-radius: 16px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 20px;
+            box-shadow: 0 0 20px var(--primary-glow);
+        }
+
+        .logo-text h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            background: linear-gradient(to right, #fff, var(--text-muted));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logo-text p {
+            font-size: 11px;
+            color: var(--secondary);
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .student-info {
+            text-align: right;
+        }
+
+        .student-info h3 {
+            font-size: 14px;
+            color: var(--text-main);
+            font-weight: 600;
+        }
+
+        .student-info p {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .student-badge {
+            background: rgba(99, 102, 241, 0.15);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            color: var(--primary);
+            padding: 3px 8px;
+            border-radius: 8px;
+            font-size: 10px;
+            font-weight: 700;
+            margin-top: 4px;
+            display: inline-block;
+        }
+
+        .back-btn {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            border: 1px solid var(--surface-border);
+            padding: 8px 16px;
+            border-radius: 12px;
+            transition: var(--transition);
+            background: rgba(255, 255, 255, 0.02);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-btn:hover {
+            color: var(--text-main);
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Grid Dashboard */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 3fr 1.3fr;
+            gap: 30px;
+        }
+
+        @media (max-width: 1100px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Cards */
+        .glass-card {
+            background: var(--surface-color);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--surface-border);
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transition: var(--transition);
+        }
+
+        .glass-card:hover {
+            border-color: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .card-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 22px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .card-title i {
+            color: var(--primary);
+        }
+
+        /* Actions & Filters */
+        .filter-bar {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-select, .form-input {
+            background: rgba(31, 41, 55, 0.5);
+            border: 1px solid var(--surface-border);
+            color: var(--text-main);
+            padding: 12px 16px;
+            border-radius: 14px;
+            font-size: 14px;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .filter-select:focus, .form-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 10px var(--primary-glow);
+        }
+
+        /* Buttons */
+        .btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 14px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 4px 15px var(--primary-glow);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            background: #4f46e5;
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid var(--surface-border);
+            color: var(--text-main);
+            box-shadow: none;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: var(--text-muted);
+            box-shadow: none;
+        }
+
+        /* Table */
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            border-radius: 16px;
+            border: 1px solid var(--surface-border);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th {
+            background: rgba(31, 41, 55, 0.6);
+            color: var(--text-muted);
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 18px 24px;
+            border-bottom: 1px solid var(--surface-border);
+        }
+
+        td {
+            padding: 18px 24px;
+            font-size: 14px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            color: var(--text-main);
+            background: rgba(17, 24, 39, 0.2);
+        }
+
+        tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-success {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--secondary);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .badge-danger {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .badge-info {
+            background: rgba(99, 102, 241, 0.15);
+            color: var(--primary);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+        }
+
+        .actions-cell {
+            display: flex;
+            gap: 10px;
+        }
+
+        .icon-btn {
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid var(--surface-border);
+            background: rgba(255, 255, 255, 0.03);
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .icon-btn:hover {
+            color: var(--text-main);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .icon-btn.delete:hover {
+            color: var(--danger);
+            border-color: rgba(239, 68, 68, 0.3);
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        /* Room list right sidebar */
+        .room-card-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .room-mini-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--surface-border);
+            border-radius: 16px;
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: var(--transition);
+        }
+
+        .room-mini-card:hover {
+            background: rgba(255, 255, 255, 0.05);
+            transform: translateX(4px);
+        }
+
+        .room-info-left h4 {
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .room-info-left p {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        /* Modal Overlay & Card */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .modal-card {
+            background: #111827;
+            border: 1px solid var(--surface-border);
+            width: 100%;
+            max-width: 550px;
+            border-radius: 24px;
+            padding: 40px;
+            position: relative;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            transform: scale(0.9);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-overlay.active .modal-card {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 20px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .modal-close:hover {
+            color: var(--text-main);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        /* Toast notifications */
+        .toast-container {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toast {
+            background: rgba(17, 24, 39, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--surface-border);
+            padding: 16px 24px;
+            border-radius: 14px;
+            color: var(--text-main);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast-success {
+            border-left: 4px solid var(--secondary);
+        }
+        .toast-success i {
+            color: var(--secondary);
+        }
+
+        .toast-error {
+            border-left: 4px solid var(--danger);
+        }
+        .toast-error i {
+            color: var(--danger);
+        }
+    </style>
 </head>
 <body>
 
-<header>
-  <h1>SIAKAD — Jadwal Kuliah</h1>
-  <a href="/" class="back-btn">Kembali ke Dashboard</a>
-</header>
+    <div class="container">
+        
+        <!-- Header -->
+        <header>
+            <div class="logo-area">
+                <div class="logo-icon">
+                    <i class="fa-solid fa-calendar-days"></i>
+                </div>
+                <div class="logo-text">
+                    <h1>Portal Akademik</h1>
+                </div>
+            </div>
+            
+            <div>
+                <a href="/" class="back-btn">
+                    <i class="fa-solid fa-arrow-left"></i> Kembali ke Dashboard
+                </a>
+            </div>
+        </header>
 
-<div class="container">
-  <div class="filters">
-    <div class="form-group">
-      <label>Program Studi</label>
-      <input type="text" id="filter-prodi" placeholder="Misal: Teknik Informatika">
-    </div>
-    <div class="form-group">
-      <label>Dosen</label>
-      <input type="text" id="filter-dosen" placeholder="Cari nama dosen...">
-    </div>
-    <button class="btn btn-primary" onclick="loadJadwal()">Terapkan Filter</button>
-    <button class="btn" style="background: #34a853; color: white;" onclick="showAddModal()">+ Tambah Jadwal</button>
-  </div>
+        <!-- Grid Dashboard -->
+        <div class="dashboard-grid">
+            
+            <!-- Column 1: Schedule -->
+            <div class="glass-card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="fa-solid fa-clock"></i>
+                        Jadwal Kuliah
+                    </h2>
+                    <button class="btn" onclick="openJadwalModal()">
+                        <i class="fa-solid fa-plus"></i> Tambah Jadwal
+                    </button>
+                </div>
 
-  <div id="schedule-container" class="schedule-grid">
-    <!-- Konten jadwal akan dimuat di sini -->
-  </div>
-</div>
+                <!-- Filters -->
+                <div class="filter-bar">
+                    <div style="flex: 1; min-width: 200px;">
+                        <input type="text" id="filterProdi" class="form-input" placeholder="Cari Program Studi..." style="width: 100%;" oninput="applyFilters()">
+                    </div>
+                    <div style="flex: 1; min-width: 200px;">
+                        <input type="text" id="filterDosen" class="form-input" placeholder="Cari Dosen..." style="width: 100%;" oninput="applyFilters()">
+                    </div>
+                    <button class="btn btn-secondary" onclick="resetFilters()">
+                        <i class="fa-solid fa-arrows-rotate"></i> Reset
+                    </button>
+                </div>
 
-<!-- Modal Tambah Jadwal -->
-<div id="addModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1000;">
-  <div style="background: white; padding: 2rem; border-radius: 8px; width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto;">
-    <h3 style="margin-bottom: 1rem;">Tambah Jadwal Baru</h3>
-    <form id="formAddJadwal" style="display: flex; flex-direction: column; gap: 1rem;">
-      <div class="form-group">
-        <label>Mata Kuliah</label>
-        <input type="text" id="mk" required>
-      </div>
-      <div class="form-group">
-        <label>Dosen</label>
-        <input type="text" id="dsn" required>
-      </div>
-      <div class="form-group">
-        <label>Ruangan (Kode)</label>
-        <input type="text" id="ruang" required>
-      </div>
-      <div class="form-group">
-        <label>Hari</label>
-        <select id="hari" required style="padding: 0.6rem; border: 1px solid #ddd; border-radius: 4px;">
-          <option value="Senin">Senin</option>
-          <option value="Selasa">Selasa</option>
-          <option value="Rabu">Rabu</option>
-          <option value="Kamis">Kamis</option>
-          <option value="Jumat">Jumat</option>
-          <option value="Sabtu">Sabtu</option>
-        </select>
-      </div>
-      <div style="display: flex; gap: 1rem;">
-        <div class="form-group" style="flex: 1;">
-          <label>Jam Mulai</label>
-          <input type="time" id="jmulai" required>
+                <!-- Table Content -->
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Mata Kuliah</th>
+                                <th>Dosen</th>
+                                <th>Prodi</th>
+                                <th>Waktu</th>
+                                <th>Ruangan</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="jadwalTableBody">
+                            <tr>
+                                <td colspan="6" style="text-align: center; color: var(--text-muted);">
+                                    <i class="fa-solid fa-spinner fa-spin"></i> Memuat data jadwal kuliah...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Column 2: Rooms -->
+            <div class="glass-card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="fa-solid fa-door-open"></i>
+                        Ruangan
+                    </h2>
+                    <button class="icon-btn" onclick="openRuanganModal()" title="Tambah Ruangan">
+                        <i class="fa-solid fa-plus"></i>
+                    </button>
+                </div>
+
+                <div class="room-card-list" id="ruanganList">
+                    <div style="text-align: center; color: var(--text-muted); padding: 20px 0;">
+                        <i class="fa-solid fa-spinner fa-spin"></i> Memuat data ruangan...
+                    </div>
+                </div>
+            </div>
+
         </div>
-        <div class="form-group" style="flex: 1;">
-          <label>Jam Selesai</label>
-          <input type="time" id="jselesai" required>
+
+    </div>
+
+    <!-- MODAL JADWAL KULIAH -->
+    <div class="modal-overlay" id="jadwalModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 class="card-title" id="modalJadwalTitle"><i class="fa-solid fa-calendar-plus"></i> Tambah Jadwal Kuliah</h3>
+                <button class="modal-close" onclick="closeJadwalModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <form id="jadwalForm" onsubmit="saveJadwal(event)">
+                <input type="hidden" id="jadwalId">
+                
+                <div class="form-group">
+                    <label for="matkul">Nama Mata Kuliah</label>
+                    <input type="text" id="matkul" class="form-input" placeholder="Contoh: Pemrograman Mobile" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="dosen">Dosen Pengampu</label>
+                    <input type="text" id="dosen" class="form-input" placeholder="Contoh: Roni Habibi, S.Kom., M.T." required>
+                </div>
+
+                <div class="form-group">
+                    <label for="prodi">Program Studi</label>
+                    <input type="text" id="prodi" class="form-input" placeholder="Contoh: D4 Teknik Informatika" required>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="hari">Hari</label>
+                        <select id="hari" class="filter-select" style="width: 100%;" required>
+                            <option value="Senin">Senin</option>
+                            <option value="Selasa">Selasa</option>
+                            <option value="Rabu">Rabu</option>
+                            <option value="Kamis">Kamis</option>
+                            <option value="Jumat">Jumat</option>
+                            <option value="Sabtu">Sabtu</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="ruangan">Ruangan</label>
+                        <select id="ruangan" class="filter-select" style="width: 100%;" required>
+                            <!-- Dynamically loaded rooms -->
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="jamMulai">Jam Mulai</label>
+                        <input type="time" id="jamMulai" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="jamSelesai">Jam Selesai</label>
+                        <input type="time" id="jamSelesai" class="form-input" required>
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 15px; margin-top: 30px;">
+                    <button type="button" class="btn btn-secondary" onclick="closeJadwalModal()">Batal</button>
+                    <button type="submit" class="btn">Simpan Jadwal</button>
+                </div>
+            </form>
         </div>
-      </div>
-      <div class="form-group">
-        <label>Prodi</label>
-        <input type="text" id="prd" required>
-      </div>
-      <div style="display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1rem;">
-        <button type="button" class="btn" style="background: #f1f3f4; color: #333;" onclick="hideAddModal()">Batal</button>
-        <button type="submit" class="btn btn-primary">Simpan</button>
-      </div>
-    </form>
-  </div>
-</div>
+    </div>
 
-<script>
-  const days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+    <!-- MODAL RUANGAN -->
+    <div class="modal-overlay" id="ruanganModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 class="card-title" id="modalRuanganTitle"><i class="fa-solid fa-door-closed"></i> Tambah Ruangan Baru</h3>
+                <button class="modal-close" onclick="closeRuanganModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <form id="ruanganForm" onsubmit="saveRuangan(event)">
+                <input type="hidden" id="ruanganOriginalKode">
+                
+                <div class="form-group">
+                    <label for="namaRuangan">Nama Ruangan</label>
+                    <input type="text" id="namaRuangan" class="form-input" placeholder="Contoh: Lab Komputer 3" required>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="kodeRuangan">Kode Ruangan</label>
+                        <input type="text" id="kodeRuangan" class="form-input" placeholder="Contoh: LAB-03" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="kapasitasRuangan">Kapasitas</label>
+                        <input type="number" id="kapasitasRuangan" class="form-input" placeholder="Contoh: 40" required>
+                    </div>
+                </div>
 
-  async function loadJadwal() {
-    const prodi = document.getElementById('filter-prodi').value;
-    const dosen = document.getElementById('filter-dosen').value;
-    
-    const params = new URLSearchParams();
-    if (prodi) params.append('prodi', prodi);
-    if (dosen) params.append('dosen', dosen);
-    
-    try {
-      const response = await fetch(`/jadwal?${params.toString()}`);
-      const data = await response.json();
-      
-      const container = document.getElementById('schedule-container');
-      container.innerHTML = '';
-      
-      if (data.status !== 'success' || !data.data || data.data.length === 0) {
-        container.innerHTML = '<div class="empty-state">Tidak ada jadwal ditemukan.</div>';
-        container.style.display = 'block';
-        return;
-      }
+                <div class="form-group">
+                    <label for="gedungRuangan">Gedung</label>
+                    <input type="text" id="gedungRuangan" class="form-input" placeholder="Contoh: Gedung A" required>
+                </div>
 
-      container.style.display = 'grid';
-      
-      // Group by Hari
-      const grouped = {};
-      days.forEach(day => grouped[day] = []);
-      
-      data.data.forEach(item => {
-        if (!grouped[item.hari]) grouped[item.hari] = [];
-        grouped[item.hari].push(item);
-      });
+                <div class="form-group">
+                    <label for="fasilitasRuangan">Fasilitas (pisahkan dengan koma)</label>
+                    <input type="text" id="fasilitasRuangan" class="form-input" placeholder="Contoh: AC, Proyektor, Komputer">
+                </div>
 
-      // Render cards per Hari
-      days.forEach(day => {
-        if (grouped[day] && grouped[day].length > 0) {
-          // Sort by Jam Mulai
-          grouped[day].sort((a, b) => a.jam_mulai.localeCompare(b.jam_mulai));
-          
-          let html = `<div class="day-card"><div class="day-header">${day}</div>`;
-          grouped[day].forEach(item => {
-            html += `
-              <div class="class-item">
-                <div class="time">${item.jam_mulai} - ${item.jam_selesai}</div>
-                <div class="subject">${item.mata_kuliah}</div>
-                <div class="lecturer">${item.dosen}</div>
-                <div class="room">Ruang: ${item.ruangan_kode || '-'}</div>
-                <div class="prodi">${item.prodi || '-'}</div>
-                <button onclick="hapusJadwal('${item._id}')" style="margin-top: 8px; font-size: 0.75rem; color: white; background: #ea4335; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">Hapus</button>
-              </div>
+                <div style="display: flex; justify-content: flex-end; gap: 15px; margin-top: 30px;">
+                    <button type="button" class="btn btn-secondary" onclick="closeRuanganModal()">Batal</button>
+                    <button type="submit" class="btn">Simpan Ruangan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toasts container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        const API_BASE = '';
+
+        let jadwals = [];
+        let ruangans = [];
+
+        // App Initializer
+        window.addEventListener('DOMContentLoaded', async () => {
+            await fetchRuangans();
+            await fetchJadwals();
+        });
+
+        // Show toast alerts
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            
+            const icon = type === 'success' ? 'fa-circle-check' : 'fa-circle-exclamation';
+            toast.innerHTML = `
+                <i class="fa-solid ${icon}"></i>
+                <span>${message}</span>
             `;
-          });
-          html += `</div>`;
-          container.innerHTML += html;
+            
+            container.appendChild(toast);
+            
+            // Trigger animation
+            setTimeout(() => toast.classList.add('show'), 10);
+            
+            // Remove toast after 4s
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 400);
+            }, 4000);
         }
-      });
-      
-    } catch (error) {
-      console.error(error);
-      const container = document.getElementById('schedule-container');
-      container.innerHTML = '<div class="empty-state">Terjadi kesalahan saat memuat data.</div>';
-      container.style.display = 'block';
-    }
-  }
 
-  function showAddModal() {
-    document.getElementById('addModal').style.display = 'flex';
-  }
+        // Fetch Schedules
+        async function fetchJadwals() {
+            const prodi = document.getElementById('filterProdi').value;
+            const dosen = document.getElementById('filterDosen').value;
+            
+            const params = new URLSearchParams();
+            if (prodi) params.append('prodi', prodi);
+            if (dosen) params.append('dosen', dosen);
 
-  function hideAddModal() {
-    document.getElementById('addModal').style.display = 'none';
-  }
+            try {
+                const response = await fetch(`${API_BASE}/jadwal?${params.toString()}`);
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    jadwals = result.data || [];
+                    renderJadwals(jadwals);
+                } else {
+                    showToast(result.message || 'Gagal memuat jadwal', 'error');
+                }
+            } catch (err) {
+                console.error(err);
+                showToast('Koneksi ke backend bermasalah', 'error');
+            }
+        }
 
-  async function hapusJadwal(id) {
-    if(!confirm("Yakin ingin menghapus jadwal ini?")) return;
-    try {
-      const response = await fetch(`/jadwal/${id}`, { method: 'DELETE' });
-      const data = await response.json();
-      if(data.status === 'success') {
-        loadJadwal();
-      } else {
-        alert(data.message || 'Gagal menghapus jadwal');
-      }
-    } catch(e) {
-      alert("Error menghapus jadwal");
-    }
-  }
+        // Fetch Rooms
+        async function fetchRuangans() {
+            try {
+                const response = await fetch(`${API_BASE}/ruangan`);
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    ruangans = result.data || [];
+                    renderRuangans(ruangans);
+                    populateRoomDropdown(ruangans);
+                } else {
+                    showToast(result.message || 'Gagal memuat ruangan', 'error');
+                }
+            } catch (err) {
+                console.error(err);
+                showToast('Gagal terhubung untuk mengambil data ruangan', 'error');
+            }
+        }
 
-  document.getElementById('formAddJadwal').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const payload = {
-      mata_kuliah: document.getElementById('mk').value,
-      dosen: document.getElementById('dsn').value,
-      ruangan_kode: document.getElementById('ruang').value,
-      hari: document.getElementById('hari').value,
-      jam_mulai: document.getElementById('jmulai').value,
-      jam_selesai: document.getElementById('jselesai').value,
-      prodi: document.getElementById('prd').value
-    };
+        // Populate Room Selection Dropdown inside Jadwal form
+        function populateRoomDropdown(rooms) {
+            const selectEl = document.getElementById('ruangan');
+            selectEl.innerHTML = '';
+            
+            if (rooms.length === 0) {
+                selectEl.innerHTML = '<option value="">Silakan tambah ruangan dahulu</option>';
+                return;
+            }
+            
+            rooms.forEach(r => {
+                const option = document.createElement('option');
+                option.value = r.kode;
+                option.textContent = `${r.nama} (${r.kode})`;
+                selectEl.appendChild(option);
+            });
+        }
 
-    try {
-      const response = await fetch('/jadwal', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      const data = await response.json();
-      if(data.status === 'success') {
-        hideAddModal();
-        e.target.reset();
-        loadJadwal();
-      } else {
-        alert("Gagal: " + data.message);
-      }
-    } catch(err) {
-      alert("Error menambah jadwal");
-    }
-  });
+        // Render Schedules into table
+        function renderJadwals(data) {
+            const tbody = document.getElementById('jadwalTableBody');
+            tbody.innerHTML = '';
+            
+            if (data.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 30px 0;">
+                            Tidak ada jadwal kuliah yang tersedia
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            data.forEach(j => {
+                const roomObj = ruangans.find(r => r.kode === j.ruangan_kode);
+                const roomName = roomObj ? roomObj.nama : 'Tanpa Ruangan';
+                const roomDetails = roomObj ? `Kapasitas: ${roomObj.kapasitas}` : '';
 
-  // Load initial data
-  document.addEventListener('DOMContentLoaded', loadJadwal);
-</script>
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="font-weight: 600;">${j.mata_kuliah}</td>
+                    <td>${j.dosen}</td>
+                    <td><span class="badge badge-info">${j.prodi}</span></td>
+                    <td>
+                        <div style="font-weight: 600;">${j.hari}</div>
+                        <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">
+                            ${j.jam_mulai} - ${j.jam_selesai}
+                        </div>
+                    </td>
+                    <td>
+                        <div style="font-weight: 600;" title="${roomDetails}">${roomName}</div>
+                        <div style="font-size: 11px; color: var(--text-muted);">${j.ruangan_kode || '-'}</div>
+                    </td>
+                    <td>
+                        <div class="actions-cell">
+                            <button class="icon-btn" onclick="editJadwal('${j._id}')" title="Edit Jadwal">
+                                <i class="fa-solid fa-pen"></i>
+                            </button>
+                            <button class="icon-btn delete" onclick="deleteJadwal('${j._id}')" title="Hapus Jadwal">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Render Rooms in right sidebar
+        function renderRuangans(data) {
+            const list = document.getElementById('ruanganList');
+            list.innerHTML = '';
+            
+            if (data.length === 0) {
+                list.innerHTML = `
+                    <div style="text-align: center; color: var(--text-muted); padding: 20px 0;">
+                        Tidak ada data ruangan
+                    </div>
+                `;
+                return;
+            }
+            
+            data.forEach(r => {
+                const facilitiesList = r.fasilitas && r.fasilitas.length > 0 ? r.fasilitas.join(', ') : 'Tidak ada fasilitas';
+                
+                const div = document.createElement('div');
+                div.className = 'room-mini-card';
+                div.innerHTML = `
+                    <div class="room-info-left" style="flex: 1;">
+                        <h4 style="color: var(--text-main); font-weight: 600;">${r.nama} (${r.kode})</h4>
+                        <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">
+                            <i class="fa-solid fa-building"></i> ${r.gedung || 'Tanpa Gedung'} &nbsp;|&nbsp;
+                            <i class="fa-solid fa-users"></i> Kapasitas: ${r.kapasitas || 0}
+                        </p>
+                        <p style="font-size: 11px; color: var(--secondary); margin-top: 4px; line-height: 1.3;">
+                            <i class="fa-solid fa-toolbox"></i> ${facilitiesList}
+                        </p>
+                    </div>
+                    <div class="actions-cell" style="margin-left: 10px;">
+                        <button class="icon-btn" onclick="editRuangan('${r.kode}')" title="Edit Ruangan" style="width: 28px; height: 28px; font-size: 11px; border-radius: 6px;">
+                            <i class="fa-solid fa-pen"></i>
+                        </button>
+                        <button class="icon-btn delete" onclick="deleteRuangan('${r.kode}')" title="Hapus Ruangan" style="width: 28px; height: 28px; font-size: 11px; border-radius: 6px;">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </div>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        // Filter functionality
+        let filterTimeout;
+        function applyFilters() {
+            clearTimeout(filterTimeout);
+            filterTimeout = setTimeout(() => {
+                fetchJadwals();
+            }, 300); // Debounce inputs
+        }
+
+        async function resetFilters() {
+            document.getElementById('filterProdi').value = '';
+            document.getElementById('filterDosen').value = '';
+            await fetchJadwals();
+        }
+
+        // Modal triggers
+        function openJadwalModal() {
+            document.getElementById('modalJadwalTitle').innerHTML = '<i class="fa-solid fa-calendar-plus"></i> Tambah Jadwal Kuliah';
+            document.getElementById('jadwalId').value = '';
+            document.getElementById('jadwalForm').reset();
+            document.getElementById('jadwalModal').classList.add('active');
+        }
+
+        function closeJadwalModal() {
+            document.getElementById('jadwalModal').classList.remove('active');
+        }
+
+        function openRuanganModal() {
+            document.getElementById('modalRuanganTitle').innerHTML = '<i class="fa-solid fa-door-closed"></i> Tambah Ruangan Baru';
+            document.getElementById('ruanganOriginalKode').value = '';
+            document.getElementById('ruanganForm').reset();
+            document.getElementById('kodeRuangan').disabled = false;
+            document.getElementById('ruanganModal').classList.add('active');
+        }
+
+        function closeRuanganModal() {
+            document.getElementById('ruanganModal').classList.remove('active');
+        }
+
+        // CRUD: Create/Update Schedules
+        async function saveJadwal(e) {
+            e.preventDefault();
+            
+            const id = document.getElementById('jadwalId').value;
+            const matkul = document.getElementById('matkul').value;
+            const dosen = document.getElementById('dosen').value;
+            const prodi = document.getElementById('prodi').value;
+            const hari = document.getElementById('hari').value;
+            const roomKode = document.getElementById('ruangan').value;
+            const jamMulai = document.getElementById('jamMulai').value;
+            const jamSelesai = document.getElementById('jamSelesai').value;
+            
+            const payload = {
+                mata_kuliah: matkul,
+                dosen: dosen,
+                prodi: prodi,
+                hari: hari,
+                jam_mulai: jamMulai,
+                jam_selesai: jamSelesai,
+                ruangan_kode: roomKode
+            };
+
+            const method = id ? 'PUT' : 'POST';
+            const url = id ? `${API_BASE}/jadwal/${id}` : `${API_BASE}/jadwal`;
+
+            try {
+                const response = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    showToast(id ? 'Jadwal berhasil diperbarui' : 'Jadwal berhasil ditambahkan', 'success');
+                    closeJadwalModal();
+                    fetchJadwals();
+                } else {
+                    showToast(result.message || 'Gagal menyimpan jadwal', 'error');
+                }
+            } catch (err) {
+                console.error(err);
+                showToast('Gagal menyimpan jadwal, masalah server', 'error');
+            }
+        }
+
+        // CRUD: Edit Jadwal Mode
+        function editJadwal(id) {
+            const j = jadwals.find(item => item._id === id);
+            if (!j) return;
+            
+            document.getElementById('modalJadwalTitle').innerHTML = '<i class="fa-solid fa-calendar-check"></i> Edit Jadwal Kuliah';
+            document.getElementById('jadwalId').value = j._id;
+            document.getElementById('matkul').value = j.mata_kuliah;
+            document.getElementById('dosen').value = j.dosen;
+            document.getElementById('prodi').value = j.prodi;
+            document.getElementById('hari').value = j.hari;
+            document.getElementById('ruangan').value = j.ruangan_kode || '';
+            document.getElementById('jamMulai').value = j.jam_mulai;
+            document.getElementById('jamSelesai').value = j.jam_selesai;
+            
+            document.getElementById('jadwalModal').classList.add('active');
+        }
+
+        // CRUD: Delete Schedule
+        async function deleteJadwal(id) {
+            if (!confirm('Apakah Anda yakin ingin menghapus jadwal ini?')) return;
+            
+            try {
+                const response = await fetch(`${API_BASE}/jadwal/${id}`, { method: 'DELETE' });
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    showToast('Jadwal berhasil dihapus', 'success');
+                    fetchJadwals();
+                } else {
+                    showToast(result.message || 'Gagal menghapus jadwal', 'error');
+                }
+            } catch (err) {
+                console.error(err);
+                showToast('Gagal menghapus jadwal, koneksi terputus', 'error');
+            }
+        }
+
+        // CRUD: Create/Update Room
+        async function saveRuangan(e) {
+            e.preventDefault();
+            
+            const originalKode = document.getElementById('ruanganOriginalKode').value;
+            const nama = document.getElementById('namaRuangan').value;
+            const kode = document.getElementById('kodeRuangan').value;
+            const kapasitas = parseInt(document.getElementById('kapasitasRuangan').value);
+            const gedung = document.getElementById('gedungRuangan').value;
+            const fasilitasRaw = document.getElementById('fasilitasRuangan').value;
+            
+            const fasilitas = fasilitasRaw 
+                ? fasilitasRaw.split(',').map(f => f.trim()).filter(f => f.length > 0)
+                : [];
+
+            const payload = {
+                nama: nama,
+                kode: kode,
+                kapasitas: kapasitas,
+                gedung: gedung,
+                fasilitas: fasilitas
+            };
+
+            const isEdit = originalKode !== '';
+            const method = isEdit ? 'PUT' : 'POST';
+            const url = isEdit ? `${API_BASE}/ruangan/${originalKode}` : `${API_BASE}/ruangan`;
+
+            try {
+                const response = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    showToast(isEdit ? 'Ruangan berhasil diperbarui' : 'Ruangan berhasil ditambahkan', 'success');
+                    closeRuanganModal();
+                    await fetchRuangans();
+                    await fetchJadwals(); // Reload schedules in case room names changed
+                } else {
+                    showToast(result.message || 'Gagal menyimpan ruangan', 'error');
+                }
+            } catch (err) {
+                console.error(err);
+                showToast('Gagal menyimpan ruangan, koneksi terputus', 'error');
+            }
+        }
+
+        // CRUD: Edit Ruangan Mode
+        function editRuangan(kode) {
+            const r = ruangans.find(item => item.kode === kode);
+            if (!r) return;
+            
+            document.getElementById('modalRuanganTitle').innerHTML = '<i class="fa-solid fa-door-open"></i> Edit Ruangan';
+            document.getElementById('ruanganOriginalKode').value = r.kode;
+            document.getElementById('namaRuangan').value = r.nama || '';
+            document.getElementById('kodeRuangan').value = r.kode || '';
+            document.getElementById('kapasitasRuangan').value = r.kapasitas || '';
+            document.getElementById('gedungRuangan').value = r.gedung || '';
+            document.getElementById('fasilitasRuangan').value = r.fasilitas ? r.fasilitas.join(', ') : '';
+            
+            document.getElementById('kodeRuangan').disabled = true;
+            document.getElementById('ruanganModal').classList.add('active');
+        }
+
+        // CRUD: Delete Room
+        async function deleteRuangan(kode) {
+            if (!confirm(`Apakah Anda yakin ingin menghapus ruangan dengan kode ${kode}?`)) return;
+            
+            try {
+                const response = await fetch(`${API_BASE}/ruangan/${kode}`, { method: 'DELETE' });
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    showToast('Ruangan berhasil dihapus', 'success');
+                    await fetchRuangans();
+                    await fetchJadwals();
+                } else {
+                    showToast(result.message || 'Gagal menghapus ruangan', 'error');
+                }
+            } catch (err) {
+                console.error(err);
+                showToast('Gagal menghapus ruangan, koneksi terputus', 'error');
+            }
+        }
+    </script>
 </body>
 </html>

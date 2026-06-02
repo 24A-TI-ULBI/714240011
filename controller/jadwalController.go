@@ -284,9 +284,9 @@ func CreateRuangan(c *fiber.Ctx) error {
 		})
 	}
 
-	ruangan.ID = res.InsertedID.(bson.M)["_id"].(bson.M)["_id"].(primitive.ObjectID) // fallback atau skip, lebih baik reload id 
-	// (Go primitive.ObjectID assertion):
-	// res.InsertedID is primitive.ObjectID. 
+	if oid, ok := res.InsertedID.(primitive.ObjectID); ok {
+		ruangan.ID = oid
+	}
 	
 	return c.Status(http.StatusCreated).JSON(fiber.Map{
 		"status":  "success",
@@ -330,5 +330,32 @@ func UpdateRuangan(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{
 		"status":  "success",
 		"message": "Ruangan berhasil diupdate",
+	})
+}
+
+// DeleteRuangan handles DELETE /ruangan/:kode
+func DeleteRuangan(c *fiber.Ctx) error {
+	kode := c.Params("kode")
+	db := helper.GetDB()
+
+	res, err := db.Collection("ruangan").DeleteOne(context.TODO(), bson.M{"kode": kode})
+	if err != nil {
+		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+			"status":  "error",
+			"message": "Gagal menghapus data ruangan",
+			"error":   err.Error(),
+		})
+	}
+
+	if res.DeletedCount == 0 {
+		return c.Status(http.StatusNotFound).JSON(fiber.Map{
+			"status":  "error",
+			"message": "Ruangan tidak ditemukan",
+		})
+	}
+
+	return c.JSON(fiber.Map{
+		"status":  "success",
+		"message": "Ruangan berhasil dihapus",
 	})
 }

@@ -6,31 +6,32 @@
   <title>SIAKAD — Portal Akademik</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; color: #333; min-height: 100vh; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #fafafa; color: #1e293b; min-height: 100vh; }
 
     header {
-      background: #1a73e8;
-      color: white;
-      padding: 1rem 2rem;
+      background: #ffffff;
+      color: #1e293b;
+      padding: 1.2rem 2rem;
+      border-bottom: 1px solid #e2e8f0;
     }
-    header h1 { font-size: 1.2rem; font-weight: 600; }
-    header p  { font-size: 0.82rem; opacity: 0.85; }
+    header h1 { font-size: 1.4rem; font-weight: 800; color: #ff6d00; }
+    header p  { font-size: 0.82rem; color: #64748b; margin-top: 0.1rem; }
 
     .hero {
-      background: linear-gradient(135deg, #1a73e8 0%, #0d47a1 100%);
+      background: linear-gradient(135deg, #ff9e4f 0%, #ff6d00 100%);
       color: white;
       text-align: center;
       padding: 4rem 2rem;
     }
-    .hero h2 { font-size: 2rem; margin-bottom: 0.5rem; }
-    .hero p  { font-size: 1rem; opacity: 0.9; }
+    .hero h2 { font-size: 2rem; margin-bottom: 0.5rem; font-weight: 700; }
+    .hero p  { font-size: 1rem; opacity: 0.95; }
 
     .modules {
       max-width: 900px;
       margin: 2.5rem auto;
       padding: 0 1.5rem;
     }
-    .modules h3 { font-size: 1rem; color: #555; margin-bottom: 1.2rem; font-weight: 600; }
+    .modules h3 { font-size: 1.1rem; color: #1e293b; margin-bottom: 1.2rem; font-weight: 700; }
 
     .grid {
       display: grid;
@@ -40,18 +41,23 @@
 
     .card {
       background: white;
-      border-radius: 10px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(148, 163, 184, 0.08);
+      border: 1px solid #e2e8f0;
       padding: 1.5rem;
       text-decoration: none;
       color: inherit;
-      transition: transform 0.15s, box-shadow 0.15s;
+      transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
       display: block;
     }
-    .card:hover { transform: translateY(-3px); box-shadow: 0 6px 16px rgba(0,0,0,0.12); }
+    .card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 20px rgba(255, 109, 0, 0.08);
+      border-color: rgba(255, 109, 0, 0.3);
+    }
     .card .icon { font-size: 2rem; margin-bottom: 0.75rem; }
-    .card h4 { font-size: 0.95rem; font-weight: 600; margin-bottom: 0.3rem; color: #1a73e8; }
-    .card p  { font-size: 0.8rem; color: #888; line-height: 1.4; }
+    .card h4 { font-size: 1rem; font-weight: 700; margin-bottom: 0.4rem; color: #ff6d00; }
+    .card p  { font-size: 0.82rem; color: #64748b; line-height: 1.5; }
 
     .status-chip {
       display: inline-flex;
